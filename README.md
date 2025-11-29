@@ -234,5 +234,8 @@ To stop:
 ```bash
 docker compose down
 ```
+<img width="1816" height="756" alt="image" src="https://github.com/user-attachments/assets/e6e95199-d145-4e2d-af57-93e8ef08d7ac" />
+<img width="1765" height="545" alt="image" src="https://github.com/user-attachments/assets/fb13e6db-92a5-4241-96d9-7bd4fe8bb4db" />
+<img width="1810" height="479" alt="image" src="https://github.com/user-attachments/assets/4142150b-e33e-4970-9c11-b9350e100bda" />
 
 ## If you have any doubts or want help extending this project further, feel free to reach out anytime 💻
