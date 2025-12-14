@@ -28,6 +28,7 @@ Use the actual `eventId` (e.g., `1`) returned after creating the first event for
   * **Body (raw JSON):**
     ```json
     {
+      "eventId": 1,
       "eventName": "Sample Event",
       "venue": "College Auditorium",
       "date": "2025-12-01",
@@ -35,7 +36,6 @@ Use the actual `eventId` (e.g., `1`) returned after creating the first event for
       "totalSeats": 50
     }
     ```
-  * **Verification:** Note the **`eventId`** returned in the response (e.g., `1`). This ID will be used in subsequent steps.
 
 #### 3.2. List All Events (R in CRUD)
 
