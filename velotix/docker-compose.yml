@@ -15,7 +15,7 @@ services:
     build: ./eureka-server
     container_name: eureka-server
     ports:
-      - "8761:8080"
+      - "8761:8761"
 
   event-service:
     build: ./event-service
@@ -42,3 +42,14 @@ services:
       - eureka-server
     ports:
       - "8083:8080"
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    depends_on:
+      - eureka-server
+      - event-service
+      - booking-service
+    ports:
+      - "8080:8080"
+
