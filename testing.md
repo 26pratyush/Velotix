@@ -1,102 +1,52 @@
-# 🚀 Microservices Endpoints Reference (Localhost)
+## Run all services with Docker
 
-This document outlines the API endpoints for the deployed services using **localhost** and their respective ports.
-
-| Service | Port |
-| :--- | :--- |
-| **Event Service** | 8081 |
-| **Booking Service** | 8082 |
-| **Notification Service** | 8083 |
-
----
-
-## 📅 Event Service (Port 8081)
-
-### 1. Get All Events
-* **Method:** `GET`
-* **URL:** `http://localhost:8081/events`
-
-### 2. Get Event by ID
-* **Method:** `GET`
-* **URL:** `http://localhost:8081/events/1`
-
-### 3. Create New Event
-* **Method:** `POST`
-* **URL:** `http://localhost:8081/events`
-* **Body (JSON):**
-```json
-{
-  "eventName": "New Event",
-  "venue": "Main Hall",
-  "date": "2025-12-10",
-  "price": 150,
-  "totalSeats": 100,
-  "availableSeats": 100
-}
-````
-
-  * **cURL:**
-
-<!-- end list -->
+From the project root (where `docker-compose.yml` is):
 
 ```bash
-curl -X POST "http://localhost:8081/events" ^
-  -H "Content-Type: application/json" ^
-  -d "{\"eventName\":\"New Event\",\"venue\":\"Main Hall\",\"date\":\"2025-12-10\",\"price\":150,\"totalSeats\":100,\"availableSeats\":100}"
+docker compose up --build
 ```
 
-### 4\. Decrease Seats (Used by Booking Service)
+Wait until logs show all services started and Eureka UI works at `http://localhost:8761`.
 
-  * **Method:** `PUT`
-  * **URL (Example: decrease 2 seats for event 1):** `http://localhost:8081/events/1/decrease?qty=2`
-  * **cURL:**
+## Basic health checks (browser)
 
-<!-- end list -->
+1. Eureka dashboard:  
+   `http://localhost:8761`
+2. Event Service through gateway:  
+   `http://localhost:8080/event-service/events`
 
-```bash
-curl -X PUT "http://localhost:8081/events/1/decrease?qty=2"
-```
+## Sample Postman requests (via API Gateway)
 
-### 5\. Update Entire Event
+### 1) Create an event
 
-  * **Method:** `PUT`
-  * **URL:** `http://localhost:8081/events/1`
-  * **Body (JSON - full payload):**
-
-<!-- end list -->
+- Method: **POST**  
+- URL: `http://localhost:8080/event-service/events`  
+- Headers: `Content-Type: application/json`  
+- Body (raw JSON):
 
 ```json
 {
-  "eventName": "Updated Event",
-  "venue": "Updated Venue",
-  "date": "2025-12-20",
-  "price": 200,
-  "totalSeats": 120,
-  "availableSeats": 80
+  "eventName": "Sample Event",
+  "venue": "College Auditorium",
+  "date": "2025-12-01",
+  "price": 100,
+  "totalSeats": 50
 }
 ```
 
-### 6\. Delete One Event
+### 2) List events
 
-  * **Method:** `DELETE`
-  * **URL:** `http://localhost:8081/events/1`
+- Method: **GET**  
+- URL: `http://localhost:8080/event-service/events`
 
-### 7\. Delete All Events
+Check that your event appears (note its `eventId`).
 
-  * **Method:** `DELETE`
-  * **URL:** `http://localhost:8081/events`
+### 3) Book tickets
 
------
-
-## 🎟️ Booking Service (Port 8082)
-
-### 1\. Create Booking (Main Flow)
-
-  * **Method:** `POST`
-  * **URL:** `http://localhost:8082/bookings`
-  * **Body (JSON):**
-
-<!-- end list -->
+- Method: **POST**  
+- URL: `http://localhost:8080/booking-service/bookings`  
+- Headers: `Content-Type: application/json`  
+- Body:
 
 ```json
 {
@@ -105,42 +55,4 @@ curl -X PUT "http://localhost:8081/events/1/decrease?qty=2"
 }
 ```
 
-  * **cURL (Windows cmd, one line):**
-
-<!-- end list -->
-
-```bash
-curl -X POST "http://localhost:8082/bookings" -H "Content-Type: application/json" -d "{\"eventId\":1,\"quantity\":2}"
-```
-
------
-
-## 🔔 Notification Service (Port 8083)
-
-This service is normally called by the **Booking Service**, but can be tested manually.
-
-### 1\. Send Test Notification
-
-  * **Method:** `POST`
-  * **URL:** `http://localhost:8083/notifications`
-  * **Body (JSON):**
-
-<!-- end list -->
-
-```json
-{
-  "email": "your-email@example.com",
-  "eventName": "Sample Event",
-  "quantity": 2
-}
-```
-
-  * **cURL:**
-
-<!-- end list -->
-
-```bash
-curl -X POST "http://localhost:8083/notifications" ^
-  -H "Content-Type: application/json" ^
-  -d "{\"email\":\"your-email@example.com\",\"eventName\":\"Sample Event\",\"quantity\":2}"
-```
+Use the actual `eventId` from step 2. This should reduce `availableSeats` and trigger a log message in `notification-service`.
