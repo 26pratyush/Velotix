@@ -1,58 +1,98 @@
-## Run all services with Docker
+### 1\. Run All Services with Docker
 
-From the project root (where `docker-compose.yml` is):
+Start all microservices from the project root (where `docker-compose.yml` is located):
 
 ```bash
 docker compose up --build
 ```
 
-Wait until logs show all services started and Eureka UI works at `http://localhost:8761`.
+**Wait for all services to start.** Confirm this when the logs show all components have started and the Eureka UI is accessible.
 
-## Basic health checks (browser)
+### 2\. Basic Health Checks (Browser)
 
-1. Eureka dashboard:  
-   `http://localhost:8761`
-2. Event Service through gateway:  
-   `http://localhost:8080/event-service/events`
+1.  **Eureka Dashboard:**
+    `http://localhost:8761`
+2.  **Event Service through Gateway:**
+    `http://localhost:8080/event-service/events`
 
-## Sample Postman requests (via API Gateway)
+### 3\. Full API Gateway Test Flow (Postman)
 
-### 1) Create an event
+Use the actual `eventId` (e.g., `1`) returned after creating the first event for subsequent tests.
 
-- Method: **POST**  
-- URL: `http://localhost:8080/event-service/events`  
-- Headers: `Content-Type: application/json`  
-- Body (raw JSON):
+#### 3.1. Create an Event (C in CRUD)
 
-```json
-{
-  "eventName": "Sample Event",
-  "venue": "College Auditorium",
-  "date": "2025-12-01",
-  "price": 100,
-  "totalSeats": 50
-}
-```
+  * **Method:** `POST`
+  * **URL:** `http://localhost:8080/event-service/events`
+  * **Headers:** `Content-Type: application/json`
+  * **Body (raw JSON):**
+    ```json
+    {
+      "eventName": "Sample Event",
+      "venue": "College Auditorium",
+      "date": "2025-12-01",
+      "price": 100,
+      "totalSeats": 50
+    }
+    ```
+  * **Verification:** Note the **`eventId`** returned in the response (e.g., `1`). This ID will be used in subsequent steps.
 
-### 2) List events
+#### 3.2. List All Events (R in CRUD)
 
-- Method: **GET**  
-- URL: `http://localhost:8080/event-service/events`
+  * **Method:** `GET`
+  * **URL:** `http://localhost:8080/event-service/events`
+  * **Verification:** Check that the event created in step 3.1 appears in the list.
 
-Check that your event appears (note its `eventId`).
+#### 3.3. Update an Event (U in CRUD)
 
-### 3) Book tickets
+  * **Method:** `PUT`
+  * **URL:** `http://localhost:8080/event-service/events/1` (Use the actual `eventId`)
+  * **Headers:** `Content-Type: application/json`
+  * **Body (raw JSON):**
+    ```json
+    {
+      "eventName": "Sample Event Updated",
+      "venue": "Main Hall",
+      "date": "2025-12-05",
+      "price": 150,
+      "totalSeats": 80,
+      "availableSeats": 50
+    }
+    ```
+  * **Verification:** Call `GET http://localhost:8080/event-service/events/1` to verify the changes (Name, Venue, Price).
 
-- Method: **POST**  
-- URL: `http://localhost:8080/booking-service/bookings`  
-- Headers: `Content-Type: application/json`  
-- Body:
+#### 3.4. Decrease Seats (Event Service Specific Logic)
 
-```json
-{
-  "eventId": 1,
-  "quantity": 2
-}
-```
+  * **Method:** `PUT`
+  * **URL:** `http://localhost:8080/event-service/events/1/decrease?qty=5` (Use the actual `eventId`)
+  * **Verification:** Call `GET http://localhost:8080/event-service/events/1` and confirm that `availableSeats` has reduced by 5.
 
-Use the actual `eventId` from step 2. This should reduce `availableSeats` and trigger a log message in `notification-service`.
+#### 3.5. Book Tickets (Booking Service via Gateway)
+
+  * **Method:** `POST`
+  * **URL:** `http://localhost:8080/booking-service/bookings`
+  * **Headers:** `Content-Type: application/json`
+  * **Body (raw JSON):**
+    ```json
+    {
+      "eventId": 1,
+      "quantity": 2
+    }
+    ```
+  * **Verification:**
+      * This should trigger a successful booking response.
+      * Check the logs for `notification-service` to confirm a notification message was triggered.
+      * Call `GET http://localhost:8080/event-service/events/1` to confirm `availableSeats` has reduced by 2 more seats.
+
+#### 3.6. Delete One Event (D in CRUD)
+
+  * **Method:** `DELETE`
+  * **URL:** `http://localhost:8080/event-service/events/1` (Use the actual `eventId`)
+  * **Verification:**
+      * Call `GET http://localhost:8080/event-service/events/1` (should return HTTP 404).
+      * Call `GET http://localhost:8080/event-service/events` (should no longer list the event).
+
+#### 3.7. Delete All Events
+
+  * **Method:** `DELETE`
+  * **URL:** `http://localhost:8080/event-service/events`
+  * **Verification:** Call `GET http://localhost:8080/event-service/events` (should return an empty list `[]`).
