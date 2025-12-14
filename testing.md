@@ -14,6 +14,7 @@ docker compose up --build
     `http://localhost:8761`
 2.  **Event Service through Gateway:**
     `http://localhost:8080/event-service/events`
+---
 
 ### 3\. Full API Gateway Test Flow (Postman)
 
@@ -96,3 +97,11 @@ Use the actual `eventId` (e.g., `1`) returned after creating the first event for
   * **Method:** `DELETE`
   * **URL:** `http://localhost:8080/event-service/events`
   * **Verification:** Call `GET http://localhost:8080/event-service/events` (should return an empty list `[]`).
+
+   
+#### 4. Stop the Services
+When the demonstration is complete, stop all running containers and clean up the resources:
+
+```bash
+docker compose down
+```
